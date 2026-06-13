@@ -5,7 +5,7 @@ const DEFAULTS = { servings: 2, diet: 'vegetarian', budget: 800, cuisine: '' }
 const SLIDER_MAX = 5000
 
 const DIETS = [
-  { id: 'omnivore', label: 'Non-veg' },
+  { id: 'omnivore', label: 'Non-vegetarian' },
   { id: 'vegetarian', label: 'Vegetarian' },
   { id: 'vegan', label: 'Vegan' },
 ]
