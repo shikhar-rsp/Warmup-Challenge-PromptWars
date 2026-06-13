@@ -27,6 +27,7 @@ export default function App() {
   const [form, setForm] = useState(DEFAULTS)
   const [plan, setPlan] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [genId, setGenId] = useState(0)
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }))
 
@@ -35,6 +36,7 @@ export default function App() {
     setLoading(true)
     setTimeout(() => {
       setPlan(generatePlan(form))
+      setGenId((n) => n + 1)
       setLoading(false)
     }, 600)
   }
@@ -42,7 +44,7 @@ export default function App() {
   const sliderPct = (Math.min(form.budget, SLIDER_MAX) / SLIDER_MAX) * 100
 
   return (
-    <div className="page">
+    <main className="page">
       <header className="hero">
         <span className="eyebrow">PromptWars · Warmup Challenge</span>
         <h1>What are we cooking today?</h1>
@@ -125,13 +127,17 @@ export default function App() {
           </div>
         </div>
 
-        <button className="primary" type="submit" disabled={loading}>
+        <button className="primary" type="submit" disabled={loading} aria-busy={loading}>
           {loading ? (<><span className="spinner" /> Building your plan…</>) : (<>Generate my plan</>)}
         </button>
       </form>
 
-      {plan && !loading && <Results plan={plan} />}
-    </div>
+      <p className="sr-only" role="status">
+        {plan && !loading ? 'Your cooking plan is ready below.' : ''}
+      </p>
+
+      {plan && !loading && <Results key={genId} plan={plan} />}
+    </main>
   )
 }
 

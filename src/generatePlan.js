@@ -37,6 +37,9 @@ const SUB_LIBRARY = [
   { original: 'Pasta',         swap: 'Whole-wheat or millet pasta',reason: 'higher fibre, gluten-conscious',   diets: ['omnivore', 'vegetarian', 'vegan'] },
   { original: 'Rice',          swap: 'Quinoa or brown rice',       reason: 'lower glycemic index',             diets: ['omnivore', 'vegetarian', 'vegan'] },
   { original: 'Cheese',        swap: 'Nutritional yeast',          reason: 'vegan, cheesy flavour',            diets: ['vegan'] },
+  { original: 'Tofu',          swap: 'Tempeh',                     reason: 'firmer texture, more protein',     diets: ['vegan'] },
+  { original: 'Quinoa',        swap: 'Millet or brown rice',       reason: 'more budget-friendly grain',       diets: ['vegan', 'vegetarian'] },
+  { original: 'Noodles',       swap: 'Rice or zucchini noodles',   reason: 'gluten-free option',               diets: ['vegan', 'vegetarian', 'omnivore'] },
 ]
 
 export function generatePlan(formData) {
