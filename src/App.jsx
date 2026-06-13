@@ -15,6 +15,14 @@ const MEAL_META = {
   dinner: { label: 'Dinner', time: 'Evening' },
 }
 
+// Keep the budget a sane, finite number — guards against empty/NaN/negative
+// or absurdly large input from the number field.
+function clampBudget(raw) {
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return 0
+  return Math.min(100000, Math.max(0, Math.round(n)))
+}
+
 export default function App() {
   const [form, setForm] = useState(DEFAULTS)
   const [plan, setPlan] = useState(null)
@@ -43,12 +51,14 @@ export default function App() {
 
       <form className="card form" onSubmit={onGenerate}>
         <div className="field">
-          <span className="lbl">Dietary preference</span>
-          <div className="segment">
+          <span className="lbl" id="diet-label">Dietary preference</span>
+          <div className="segment" role="radiogroup" aria-labelledby="diet-label">
             {DIETS.map((d) => (
               <button
                 type="button"
                 key={d.id}
+                role="radio"
+                aria-checked={form.diet === d.id}
                 className={`seg ${form.diet === d.id ? 'active' : ''}`}
                 onClick={() => set('diet', d.id)}
               >
@@ -60,17 +70,18 @@ export default function App() {
 
         <div className="row-2">
           <div className="field">
-            <span className="lbl">Servings</span>
-            <div className="stepper">
-              <button type="button" onClick={() => set('servings', Math.max(1, form.servings - 1))}>−</button>
-              <span className="step-val">{form.servings}</span>
-              <button type="button" onClick={() => set('servings', Math.min(20, form.servings + 1))}>+</button>
+            <span className="lbl" id="servings-label">Servings</span>
+            <div className="stepper" role="group" aria-labelledby="servings-label">
+              <button type="button" aria-label="Decrease servings" onClick={() => set('servings', Math.max(1, form.servings - 1))}>−</button>
+              <span className="step-val" aria-live="polite">{form.servings}</span>
+              <button type="button" aria-label="Increase servings" onClick={() => set('servings', Math.min(20, form.servings + 1))}>+</button>
             </div>
           </div>
 
           <div className="field">
-            <span className="lbl">Cuisine <em className="opt">optional</em></span>
+            <label className="lbl" htmlFor="cuisine">Cuisine <em className="opt">optional</em></label>
             <input
+              id="cuisine"
               type="text"
               placeholder="Indian, Italian…"
               value={form.cuisine}
@@ -81,15 +92,18 @@ export default function App() {
 
         <div className="field">
           <div className="lbl budget-lbl">
-            <span>Budget for the day</span>
+            <label htmlFor="budget">Budget for the day</label>
             <div className="budget-input">
-              <span className="rupee">₹</span>
+              <span className="rupee" aria-hidden="true">₹</span>
               <input
+                id="budget"
                 type="number"
                 min="0"
+                max="100000"
                 step="50"
+                aria-label="Budget for the day in rupees"
                 value={form.budget}
-                onChange={(e) => set('budget', Math.max(0, Number(e.target.value)))}
+                onChange={(e) => set('budget', clampBudget(e.target.value))}
               />
             </div>
           </div>
@@ -99,6 +113,8 @@ export default function App() {
             min="200"
             max={SLIDER_MAX}
             step="50"
+            aria-label="Adjust budget"
+            aria-valuetext={`₹${form.budget}`}
             value={Math.min(form.budget, SLIDER_MAX)}
             onChange={(e) => set('budget', Number(e.target.value))}
             style={{ '--pct': `${sliderPct}%` }}
@@ -178,13 +194,21 @@ function GroceryList({ items }) {
 
   return (
     <>
-      <h2>Grocery list <span className="counter">{done}/{items.length}</span></h2>
+      <h2>Grocery list <span className="counter" aria-live="polite">{done}/{items.length} packed</span></h2>
       <ul className="grocery">
         {items.map((g, i) => (
-          <li key={i} className={checked[i] ? 'done' : ''} onClick={() => toggle(i)}>
-            <span className="check" aria-hidden>{checked[i] ? '✓' : ''}</span>
-            <span className="g-name">{g.item} <em>{g.qty}</em></span>
-            <span className="cost">₹{g.estCost}</span>
+          <li key={i} className={checked[i] ? 'done' : ''}>
+            <label className="g-item">
+              <input
+                type="checkbox"
+                className="g-checkbox"
+                checked={checked[i]}
+                onChange={() => toggle(i)}
+              />
+              <span className="check" aria-hidden="true">{checked[i] ? '✓' : ''}</span>
+              <span className="g-name">{g.item} <em>{g.qty}</em></span>
+              <span className="cost">₹{g.estCost}</span>
+            </label>
           </li>
         ))}
       </ul>
